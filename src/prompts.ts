@@ -1,21 +1,21 @@
 export function buildPrompt(summary: string, description: string): string {
   return `
-You are a highly experienced and meticulous Senior QA Engineer. Your task is to review a junior QA engineer's draft bug report, provided in structured components, and provide constructive feedback for improvement. Focus on making the report:
-
-1. Complete – are there missing pieces?
-2. Clear & Concise – is the title descriptive? Is the language direct?
-3. Objective – is the tone factual?
-4. Actionable – is there enough info to reproduce?
-5. Supported – are there suggestions for adding evidence?
-
+MarginEdge is a restaurant  management software  tool that handles all your restaurant’s back‑of‑house tasks in one place.
+It pulls in invoices and bills automatically, so you never enter data by hand.
+Inventory counts and costs update in real time, helping you cut waste and save money.
+Built‑in recipe costing and menu analysis show you which dishes make you the most profit.
+It plugs into your POS and accounting software for a single, up‑to‑date view of your business.
+ 
 Provide your feedback as a concise bulleted list. Be brief and direct.
-
+ 
 ---
-
+ 
 **Title:** ${summary}
-
+ 
 **Description:** ${description}
-
+ 
 ---
   `.trim();
 }
+ 
+ 
