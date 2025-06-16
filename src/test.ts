@@ -1,20 +1,17 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import dotenv from "dotenv";
+import { fetchJiraTicket } from "./jira";
 
-dotenv.config();
+async function main() {
+  const ticketId = process.argv[2]; // CLI input
+  if (!ticketId) {
+    console.error("❗ Please provide a Jira ticket ID. Example: npm run dev ME-123");
+    return;
+  }
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-
-async function listAvailableModels() {
-  try {
-    const models = await genAI.listModels();
-    console.log("✅ Available Gemini Models:\n");
-    for (const model of models) {
-      console.log(`- ${model.name}`);
-    }
-  } catch (error: any) {
-    console.error("❌ Failed to list models:", error.message);
+  const data = await fetchJiraTicket(ticketId);
+  if (data) {
+    console.log("\n🎫 Ticket Summary:\n", data.summary);
+    console.log("\n📝 Description:\n", data.description?.content?.[0]?.content?.[0]?.text || data.description || "No description found");
   }
 }
 
-listAvailableModels();
+//main();

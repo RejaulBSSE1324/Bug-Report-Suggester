@@ -30,16 +30,37 @@ async function main() {
             description = descriptionRaw.content[0].content[0].text;
         }
 
+        // 3. Handle attachments
+        const attachments = ticketData.fields.attachment || [];
+        const screenshotInfo = attachments.length > 0
+            ? `The report includes ${attachments.length} attachment(s), including possible screenshots.`
+            : `No attachments are included in the report.`;
+
+        // 4. Show details in console
         console.log("\n🎫 Ticket Summary:\n", summary);
         console.log("\n📝 Ticket Description:\n", description);
+        console.log("\n📎 Attachment Info:\n", screenshotInfo);
 
-        // 3. Build prompt and get suggestions from Gemini
+
+        const imageAttachment = attachments.find((att: any) =>
+            att.mimeType?.startsWith("image/")
+        );
+
+        if (!imageAttachment) {
+            console.log("❗ No valid image attachments found. Skipping image analysis.");
+            return;
+        }
+
+        const imageUrl = imageAttachment.content;
+
+
+        // 5. Build prompt and get Gemini feedback
         console.log("\n🤖 Sending to Gemini for QA feedback...");
-        const prompt = buildPrompt(summary, description);
-        // const prompt= "what is the meaning of OLI ( bangali ) in arabic";
-        const feedback = await getFeedbackFromGemini(prompt);
+        //const imageUrl = attachments[0]?.content; // first attachment if exists
+        const feedback = await getFeedbackFromGemini(summary, description, imageUrl);
 
-        // 4. Output Gemini's response
+
+        // 6. Output Gemini's response
         console.log("\n✅ Gemini Suggestions:\n");
         console.log(feedback || "⚠️ No suggestions were returned.");
     } catch (error: any) {

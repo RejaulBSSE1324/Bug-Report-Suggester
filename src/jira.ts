@@ -1,10 +1,6 @@
 import axios from "axios";
 
-/**
- * Fetches a Jira ticket's details using the Jira API.
- * @param ticketId - The ticket ID or key (e.g., "ME-12345").
- * @returns A promise that resolves to the ticket's data.
- */
+
 export async function fetchJiraTicket(ticketId: string): Promise<any> {
   const { JIRA_API_KEY, JIRA_EMAIL, JIRA_DOMAIN } = process.env;
 
