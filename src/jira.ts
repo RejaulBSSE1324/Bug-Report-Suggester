@@ -1,6 +1,5 @@
 import axios from "axios";
- 
- 
+
 export async function fetchJiraTicket(ticketId: string): Promise<any> {
   const { JIRA_API_KEY, JIRA_EMAIL, JIRA_DOMAIN } = process.env;
  
