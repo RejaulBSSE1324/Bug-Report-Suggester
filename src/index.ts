@@ -37,6 +37,7 @@ async function main() {
             : `No attachments are included in the report.`;
 
         // 4. Show details in console
+        console.log("\n🎫 Ticket Summary:\n", summary);
         console.log("\n📝 Ticket Description:\n", description);
         console.log("\n📎 Attachment Info:\n", screenshotInfo);
 
