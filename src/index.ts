@@ -68,4 +68,6 @@ async function main() {
     }
 }
 
-main();
+main().finally(() => process.exit(0));
+
+

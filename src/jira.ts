@@ -25,3 +25,4 @@ export async function fetchJiraTicket( ticketId: string): Promise<any> {
     throw new Error(`Error  fetching ticket ${ticketId}: ${error.response?.data || error.message}`);
   }
 }
+
