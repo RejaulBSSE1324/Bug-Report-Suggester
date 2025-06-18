@@ -15,27 +15,27 @@ async function main() {
     }
 
     try {
-        // 1. Fetch Jira ticket
         const ticketData = await fetchJiraTicket(ticketId);
 
-        // 2. Extract summary and description
         const summary: string = ticketData.fields.summary;
         const descriptionRaw = ticketData.fields.description;
 
-        // Handle Jira's rich-text format or plain text
         let description = "No description";
+
         if (typeof descriptionRaw === "string") {
             description = descriptionRaw;
-        } else if (descriptionRaw?.content?.[0]?.content?.[0]?.text) {
-            description = descriptionRaw.content[0].content[0].text;
+        } else if (descriptionRaw?.content) {
+            // Try to extract all plain text content from the rich-text structure
+            description = descriptionRaw.content
+                .map((block: any) => block.content?.map((inner: any) => inner.text).join(" ") || "")
+                .join("\n");
         }
 
-        // 3. Handle attachments
-        const attachments = ticketData.fields.attachment || [];
-        const screenshotInfo = attachments.length > 0
-            ? `The report includes ${attachments.length} attachment(s), including possible screenshots.`
-            : `No attachments are included in the report.`;
 
+
+        const attachments = ticketData.fields.attachment || [];
+
+<<<<<<< HEAD
         // 4. Show details in console
         console.log("\n🎫 Ticket Summary:\n", summary);
         console.log("\n📝 Ticket Description:\n", description);
@@ -44,28 +44,45 @@ async function main() {
 
         const imageAttachment = attachments.find((att: any) =>
             att.mimeType?.startsWith("image/")
+=======
+        const hasScreenshotOrLoom = attachments.some((att: any) =>
+            att.mimeType?.startsWith("image/") || att.filename?.toLowerCase().includes("loom")
+>>>>>>> 8802474e3cdaa13b5f0904c8d205666a1d47e106
         );
 
-        if (!imageAttachment) {
-            console.log("❗ No valid image attachments found. Skipping image analysis.");
-            return;
+
+        console.log("\n🎫 Ticket Summary:\n", summary);
+
+        const prompt = buildPrompt(summary, description, hasScreenshotOrLoom);
+
+        console.log("\n🤖 Sending to Gemini for QA feedback...");
+        const feedback = await getFeedbackFromGemini(prompt);
+
+        if (feedback) {
+            const normalized = feedback.trim().toLowerCase();
+            if (
+                normalized === "everything looks good" ||
+                normalized.includes("everything looks fine") ||
+                normalized.includes("no improvement needed")
+            ) {
+                console.log("\n✅ Everything looks good in this bug report!");
+                process.exit(0);
+            } else {
+                console.log("\n✅ Gemini Suggestions:\n");
+                console.log(feedback);
+                process.exit(0);
+            }
+        } else {
+            console.log("⚠️ No suggestions were returned.");
+            process.exit(1);
         }
 
-        const imageUrl = imageAttachment.content;
-
-
-        // 5. Build prompt and get Gemini feedback
-        console.log("\n🤖 Sending to Gemini for QA feedback...");
-        //const imageUrl = attachments[0]?.content; // first attachment if exists
-        const feedback = await getFeedbackFromGemini(summary, description, imageUrl);
-
-
-        // 6. Output Gemini's response
-        console.log("\n✅ Gemini Suggestions:\n");
-        console.log(feedback || "⚠️ No suggestions were returned.");
     } catch (error: any) {
         console.error("❌ An error occurred:", error.message);
+        process.exit(1);
     }
 }
 
-main();
+main().finally(() => process.exit(0));
+
+
